@@ -1025,7 +1025,7 @@ function updateProgress() {
   const total = 6;
   const done = state.completedSteps.size;
   const pct = (done / total) * 100;
-  document.getElementById('progress-fill-bar').style.width = pct + '%';
+  document.getElementById('fill-bar').style.width = pct + '%';
   document.getElementById('progress-label').textContent = done + '/6 Steps';
   document.querySelectorAll('.progress-step').forEach((el, i) => {
     el.classList.remove('active', 'done');
@@ -1037,10 +1037,11 @@ function updateProgress() {
 function completeStep(n) {
   if (state.completedSteps.has(n)) return;
   state.completedSteps.add(n);
-  const badge = document.getElementById('badge-' + n);
+  // IDs in HTML use no hyphen: badge1, badge2... step1, step2...
+  const badge = document.getElementById('badge' + n);
   if (badge) badge.classList.add('done');
   updateProgress();
-  const section = document.getElementById('step-' + n);
+  const section = document.getElementById('step' + n);
   if (section) {
     section.scrollIntoView({ behavior: 'smooth', block: 'center' });
     section.style.boxShadow = '0 0 0 4px #4CAF50, 0 8px 32px rgba(0,0,0,0.3)';
@@ -1060,8 +1061,9 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting && entry.intersectionRatio > 0.3) {
       const id = entry.target.id;
-      if (id.startsWith('step-')) {
-        state.currentStep = parseInt(id.split('-')[1]) - 1;
+      // IDs are step1, step2... (no hyphen)
+      if (/^step\d+$/.test(id)) {
+        state.currentStep = parseInt(id.replace('step', '')) - 1;
         updateProgress();
       }
     }
@@ -1070,8 +1072,29 @@ const observer = new IntersectionObserver((entries) => {
 
 // ========== CHARACTER ANIMATION ==========
 function animateCharacter() {
-  const char = document.getElementById('aqua-char');
-  if (char) char.classList.toggle('octo-dancing');
+  // HTML uses id="octo-char"
+  const char = document.getElementById('octo-char');
+  if (char) {
+    char.classList.remove('octo-dancing');
+    void char.offsetWidth; // force reflow to restart animation
+    char.classList.add('octo-dancing');
+    // Show a fun message
+    const msgs = [
+      "Hi! I'm Aqua! 🌊 I help keep the ocean safe!",
+      "I can spot trash from space! 🛸🌊",
+      "Keep the ocean clean! 🐠💙",
+      "AI + Ocean = Super Powers! 🤖🌊",
+      "I never sleep — I watch 24/7! 😎"
+    ];
+    const msgEl = document.getElementById('octo-msg');
+    if (msgEl) {
+      msgEl.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+      msgEl.style.animation = 'none';
+      void msgEl.offsetWidth;
+      msgEl.style.animation = 'fadeSlide 0.4s ease';
+    }
+    setTimeout(() => char.classList.remove('octo-dancing'), 2000);
+  }
 }
 
 // ========== CONFETTI ==========
