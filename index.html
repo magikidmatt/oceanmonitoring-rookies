@@ -1226,14 +1226,15 @@ function toggleCheck(el, group) {
 // ========== ACTIVITIES ==========
 function completeActivity(n) {
   state.activitiesComplete++;
-  const card = document.getElementById('activity-' + n);
+  // HTML IDs: act1, act2, act3 (no hyphen)
+  const card = document.getElementById('act' + n);
   if (card) {
-    card.style.background = '#E8F5E9';
-    card.style.border = '3px solid #4CAF50';
+    card.classList.add('done-act');
   }
-  document.getElementById('activity-label-' + n).textContent = '✅ Done!';
+  // Update progress counter
+  const prog = document.getElementById('act-progress');
+  if (prog) prog.textContent = state.activitiesComplete + '/3 Activities Done 🏃';
   if (state.activitiesComplete >= 3 && !state.completedSteps.has(5)) {
-    document.getElementById('activities-hint').textContent = '🎉 Amazing! You explored all activities!';
     setTimeout(() => completeStep(5), 500);
   }
 }
